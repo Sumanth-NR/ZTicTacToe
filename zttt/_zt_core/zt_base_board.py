@@ -1,43 +1,62 @@
-from typing import List, Tuple, Dict, Callable, Iterable, Any, Union
+from collections.abc import Callable
+from enum import IntEnum
+from typing import Any
+
 from ..zt_errors import ZTGameException, ZTInvalidInput
+
+# Board constants
+BOARD_SIZE = 9
+GRID_DIMENSION = 3
+CENTER_POSITION = 4
+WINNING_LINE_LENGTH = 3
+MAX_MOVES = 9
+
+
+class CellValue(IntEnum):
+    """Enum for cell values on the board"""
+
+    EMPTY = 0
+    PLAYER2 = 1
+    PLAYER1 = 4
+
+
+class Player(IntEnum):
+    """Enum for player numbers"""
+
+    DRAW = 0
+    PLAYER1 = 1
+    PLAYER2 = 2
 
 
 class ZTBaseBoard:
     """This is the base class which is inherited by all the classes which are used in the module"""
 
     # The following variables are not to be changed
-    _VAL_PLAYER1 = 4  # Value for player 1 in the board_list
-    _VAL_PLAYER2 = 1  # Value for player 2 in the board_list
-    _VAL_EMPTY = 0  # Value for empty position in the board_list
+    _VAL_PLAYER1 = CellValue.PLAYER1  # Value for player 1 in the board_list
+    _VAL_PLAYER2 = CellValue.PLAYER2  # Value for player 2 in the board_list
+    _VAL_EMPTY = CellValue.EMPTY  # Value for empty position in the board_list
 
     # Indicates what the values contained in the _board_list represent
-    # The indicator with value 5 goes first
-    _INDICATOR: Dict[int, str] = {
-        _VAL_PLAYER1: 'X',
-        _VAL_PLAYER2: 'O',
-        _VAL_EMPTY: ' '
-    }
+    _INDICATOR: dict[int, str] = {_VAL_PLAYER1: "X", _VAL_PLAYER2: "O", _VAL_EMPTY: " "}
 
-    # All the lines the current position
-    _LINES: Dict[int, List[Tuple[int, int]]] = {
+    # All the lines that pass through each position
+    _LINES: dict[int, list[tuple[int, int]]] = {
         4: [(0, 8), (2, 6), (1, 7), (3, 5)],
-
         0: [(1, 2), (4, 8), (3, 6)],
         2: [(1, 0), (4, 6), (5, 8)],
         6: [(3, 0), (4, 2), (7, 8)],
         8: [(5, 2), (4, 0), (6, 7)],
-
         1: [(0, 2), (4, 7)],
         3: [(0, 6), (4, 5)],
         5: [(2, 8), (3, 4)],
-        7: [(6, 8), (4, 1)]
+        7: [(6, 8), (4, 1)],
     }
 
-    # The center is present in Position 4
-    _CENTER = 4
+    # The center position
+    _CENTER = CENTER_POSITION
 
     @classmethod
-    def set_indicators(cls, _player1: str = 'X', _player2: str = 'O', _space: str = ' ') -> None:
+    def set_indicators(cls, _player1: str = "X", _player2: str = "O", _space: str = " ") -> None:
         """Sets the indicators, a class method
 
         :param _player1: Indicator for player 1
@@ -49,50 +68,46 @@ class ZTBaseBoard:
         :return: None
         """
 
-        cls._INDICATOR = {
-            cls._VAL_PLAYER1: str(_player1),
-            cls._VAL_PLAYER2: str(_player2),
-            cls._VAL_EMPTY: str(_space)
-        }
+        cls._INDICATOR = {cls._VAL_PLAYER1: str(_player1), cls._VAL_PLAYER2: str(_player2), cls._VAL_EMPTY: str(_space)}
 
     def __init__(self) -> None:
         """Initializes the board and the state variables"""
 
-        # Main list containing the _empty_positions from top left in row major order
+        # Main list containing the board state from top left in row major order
         # Protected since inherited classes will be able to quickly access it
-        self._board_list: List[int] = [0 for _ in range(9)]
+        self._board_list: list[int] = [self._VAL_EMPTY for _ in range(BOARD_SIZE)]
 
-        # List containing the _empty_positions empty edges and empty corners
+        # List containing the empty positions
         # Protected since inherited classes will be able to quickly access it
-        self._empty_positions: List[int] = [i for i in range(9)]
+        self._empty_positions: list[int] = list(range(BOARD_SIZE))
 
         # History
-        self._history: List[int] = []
+        self._history: list[int] = []
 
         # Determines whether the game is ongoing or not
         self.__status: bool = True
 
         # Stores the information about the __winner of the game
-        self.__winner: (None, int) = None  # Initially set to None since there is no winner
+        self.__winner: int | None = None  # Initially set to None since there is no winner
 
         # This stores the current move that is to be performed
         # move = 1 indicates that move 1 is to be played now
         self.__move: int = 1
 
         # Stores the values that are to be highlighted after the game
-        self.__highlight_list: List[int] = list()
+        self.__highlight_list: list[int] = []
 
         # Event triggers
         self._on_move: Callable[[int, int], None] = lambda player, pos: None
         self._on_finish: Callable[[int], None] = lambda player: None
 
         # Used for function calls
-        self._data: Dict[str, Any] = {'args': list(), 'kwargs': dict(), 'output': None}
+        self._data: dict[str, Any] = {"args": [], "kwargs": {}, "output": None}
 
     # Useful properties
 
     @property
-    def board_list(self) -> List[int]:
+    def board_list(self) -> list[int]:
         """List containing the status of the board (Row Major Order)
 
         :return: A (duplicate) list of the board list
@@ -128,19 +143,16 @@ class ZTBaseBoard:
         return 1 if self.__move % 2 == 1 else 2
 
     @property
-    def winner(self) -> (None, int):
+    def winner(self) -> int | None:
         """The winner of the game
 
         :return: Winner if the game is over, 0 is draw, None if no winner yet
-        :rtype: (None, int)
+        :rtype: Optional[int]
         """
-        # !TODO Issue a Warning if there is no winner
-        if self.status:
-            pass  # Issue a warning here
         return self.__winner
 
     @property
-    def history(self) -> List[int]:
+    def history(self) -> list[int]:
         """Returns the history of the game
 
         :return: A (duplicate) list of the history
@@ -149,7 +161,7 @@ class ZTBaseBoard:
         return self._history[:]
 
     @property
-    def empty_positions(self) -> List[int]:
+    def empty_positions(self) -> list[int]:
         """Returns the list of empty positions
 
         :return: A (duplicate) list (in row major order from 0) of the empty positions
@@ -158,16 +170,16 @@ class ZTBaseBoard:
         return self._empty_positions[:]
 
     @property
-    def empty_corners(self) -> List[int]:
+    def empty_corners(self) -> list[int]:
         """Returns the list of empty corners
 
         :return: List of the empty corners
         :rtype: List[int]
         """
-        return [i for i in self._empty_positions if i is not self._CENTER and i % 2 == 0]
+        return [i for i in self._empty_positions if i != self._CENTER and i % 2 == 0]
 
     @property
-    def empty_edges(self) -> List[int]:
+    def empty_edges(self) -> list[int]:
         """Returns the list of empty edges
 
         :return: List of the empty edges
@@ -176,7 +188,7 @@ class ZTBaseBoard:
         return [i for i in self._empty_positions if i % 2 == 1]
 
     @property
-    def highlighted(self) -> List[int]:
+    def highlighted(self) -> list[int]:
         """Returns the highlighted positions of the board when there is a winner, empty list otherwise
 
         :return: A (duplicate) list of highlighted positions
@@ -191,15 +203,17 @@ class ZTBaseBoard:
         :return: board string
         :rtype: str
         """
-
-        pr_str = ' _____ _____ _____\n'
-        for i in range(3):
-            pr_str += '|     |     |     |\n|'
-            for j in range(3):
-                pos_val = self._board_list[i * 3 + j]
-                pr_str += f'  {self.__class__._INDICATOR[pos_val]}  |'
-            pr_str += '\n|_____|_____|_____|\n'
-        return pr_str
+        lines = [" _____ _____ _____"]
+        for i in range(GRID_DIMENSION):
+            lines.append("|     |     |     |")
+            row_cells = []
+            for j in range(GRID_DIMENSION):
+                pos_val = self._board_list[i * GRID_DIMENSION + j]
+                indicator = self.__class__._INDICATOR[pos_val]
+                row_cells.append(f"  {indicator}  ")
+            lines.append("|" + "|".join(row_cells) + "|")
+            lines.append("|_____|_____|_____|")
+        return "\n".join(lines)
 
     # Triggers Setup
 
@@ -222,7 +236,7 @@ class ZTBaseBoard:
         """
 
         if not callable(_on_move):
-            raise TypeError('on_move must be a function')
+            raise TypeError("on_move must be a function")
         self._on_move = _on_move
 
     @property
@@ -244,7 +258,7 @@ class ZTBaseBoard:
         """
 
         if not callable(_on_finish):
-            raise TypeError('on_move must be a function')
+            raise TypeError("on_move must be a function")
         self._on_finish = _on_finish
 
     # Helper Functions
@@ -267,19 +281,21 @@ class ZTBaseBoard:
 
         try:
             pos = int(pos)
-        except ValueError:
-            raise ZTInvalidInput("Position entered must be an integer")
-        except Exception as e:
-            print(f"Unknown Error while verifying the position {pos}. Please raise an issue.")
-            raise ZTInvalidInput(e)
+        except ValueError as e:
+            raise ZTInvalidInput("Position entered must be an integer") from e
+        except (TypeError, OverflowError) as e:
+            raise ZTInvalidInput(f"Invalid position type: {e}") from e
+
+        if pos not in range(BOARD_SIZE):
+            raise ZTInvalidInput(f"Position must be between 0 and {BOARD_SIZE - 1}, got {pos}")
 
         if pos not in self._empty_positions:
-            raise ZTInvalidInput("Invalid Position Entered")
+            raise ZTInvalidInput(f"Position {pos} is not available")
 
-        if not self._board_list[pos] == 0:
-            raise ZTInvalidInput("Position Already Taken")
+        if self._board_list[pos] != self._VAL_EMPTY:
+            raise ZTInvalidInput(f"Position {pos} is already taken")
 
-    def __is_fully_played(self, _line: Tuple[int, int, int]) -> bool:
+    def __is_fully_played(self, _line: tuple[int, int, int]) -> bool:
         """Checks if the given line is fully played
 
         :param _line: A tuple of three positions
@@ -289,7 +305,7 @@ class ZTBaseBoard:
         """
 
         for pos in _line:
-            if self._board_list[pos] == 0:
+            if self._board_list[pos] == self._VAL_EMPTY:
                 return False
         return True
 
@@ -307,8 +323,7 @@ class ZTBaseBoard:
 
         winning_set_list = [pos]
         for line in ZTBaseBoard._LINES[pos]:
-            line_val = self._board_list[pos] + \
-                       self._board_list[line[0]] + self._board_list[line[1]]
+            line_val = self._board_list[pos] + self._board_list[line[0]] + self._board_list[line[1]]
 
             if line_val in (3 * ZTBaseBoard._VAL_PLAYER1, 3 * ZTBaseBoard._VAL_PLAYER2):
                 winning_set_list.extend(line)

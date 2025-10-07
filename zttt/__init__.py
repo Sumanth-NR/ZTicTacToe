@@ -1,4 +1,3 @@
-
 """
 
 Module zttt
@@ -16,14 +15,15 @@ The module also contains the submodule zt_errors which contain the following err
 1. ZTError: The base class for all ZTErrors
 2. ZTBadFunctionCall: The error raised when a function is called with the wrong arguments. Mostly used for debugging
 3. ZTGameException: The error raised when a function call crashes the game
-4. ZTWrongInput: The error raised when the input provided is not valid
+4. ZTInvalidInput: The error raised when the input provided is not valid
 
 """
 
+from . import zt_errors
+from ._zt_core import CellValue, Player
 from .pvc import PvC
 from .pvp import PvP
-from . import zt_errors
 
-__version__ = '1.0.2'
+__version__ = "1.0.2"
 
-__all__ = ['__version__', 'PvP', 'PvC', 'zt_errors']
+__all__ = ["__version__", "PvP", "PvC", "zt_errors", "CellValue", "Player"]

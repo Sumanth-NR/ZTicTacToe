@@ -1,21 +1,76 @@
-[tool.poetry]
+[project]
 name = "zttt"
 version = "1.0.2"
 description = "Simple, Standalone Tic Tac Toe Library"
-license = "MIT"
-authors = ["Sumanth NR <sumanthnr62@gmail.com>"]
-readme = "README.rst"
-homepage = "https://ztictactoe.readthedocs.io/en/latest/"
-repository = "https://github.com/Sigma1084/ZTicTacToe/tree/v1"
-documentation = "https://ztictactoe.readthedocs.io/en/v1/"
-keywords = ["ZTTT", "TTT", "Tic Tac Toe", "X-O", "poetry", "sphinx"]
+authors = [
+    {name = "Sumanth NR", email = "sumanthnr62@gmail.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+keywords = ["ZTTT", "TTT", "Tic Tac Toe", "X-O", "game"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment :: Board Games",
+    "Typing :: Typed"
+]
 
-[tool.poetry.dependencies]
-python = "^3.7"
+[project.urls]
+Homepage = "https://ztictactoe.readthedocs.io/en/latest/"
+Repository = "https://github.com/Sumanth-NR/ZTicTacToe"
+Documentation = "https://ztictactoe.readthedocs.io/en/latest/"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.1.2"
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.6.0",
+    "mypy>=1.11.0"
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_tests.py"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+exclude = [
+    "docs",
+    "examples"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E203", # whitespace before ':'
+    "E501", # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
