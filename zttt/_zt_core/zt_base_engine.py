@@ -2,7 +2,7 @@ from typing import Tuple, List, Optional
 from random import choice
 
 from .zt_base_board import ZTBaseBoard
-from ..zt_errors import ZTBadFunctionCall, ZTGameException, ZTInvalidInput
+from ..zt_errors import ZTBadFunctionCall
 
 
 class ZTBaseEngine(ZTBaseBoard):
@@ -176,9 +176,9 @@ class ZTBaseEngine(ZTBaseBoard):
             return
         for (pos1, pos2) in self._LINES[pos]:
             sorted_line = tuple(sorted([pos, pos1, pos2]))
-            if (sorted_line in self.__active_lines and
-                    self._board_list[pos1] != self._VAL_EMPTY and
-                    self._board_list[pos2] != self._VAL_EMPTY):
+            if (sorted_line in self.__active_lines
+                    and self._board_list[pos1] != self._VAL_EMPTY
+                    and self._board_list[pos2] != self._VAL_EMPTY):
                 self.__active_lines.remove(sorted_line)
 
     # Functions to play

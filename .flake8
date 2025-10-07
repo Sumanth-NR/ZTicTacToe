@@ -11,8 +11,6 @@ exclude =
     .venv,
     venv,
     docs
-ignore = 
-    E203,  # whitespace before ':'
-    W503,  # line break before binary operator
+ignore = E203,W503,W504
 per-file-ignores =
     __init__.py:F401

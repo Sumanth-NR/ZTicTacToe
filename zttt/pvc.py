@@ -5,10 +5,10 @@ from ._zt_core import ZTPlayerFirst
 
 class PvC:
     """Player vs Computer Tic Tac Toe game
-    
+
     This class provides an interface for playing against an AI opponent.
     The AI uses a near-perfect strategy to play the game.
-    
+
     Example:
         >>> game = PvC(engine_first=False)  # Player goes first
         >>> game.play(4)  # Player plays center
@@ -41,7 +41,7 @@ class PvC:
 
     def __getattr__(self, name: str) -> Any:
         """Delegate all other attribute access to the underlying engine
-        
+
         :param name: The attribute name to access
         :type name: str
         :return: The attribute value from the underlying engine

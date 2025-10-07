@@ -3,10 +3,10 @@ from ._zt_core import ZTBaseBoard
 
 class PvP(ZTBaseBoard):
     """Player vs Player Tic Tac Toe game
-    
+
     This class provides a simple interface for a two-player Tic Tac Toe game.
     Players alternate turns, with Player 1 (X) going first.
-    
+
     Example:
         >>> game = PvP()
         >>> game.play(0)  # Player 1 plays top-left

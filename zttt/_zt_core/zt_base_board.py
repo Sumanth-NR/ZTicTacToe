@@ -327,8 +327,9 @@ class ZTBaseBoard:
 
         winning_set_list = [pos]
         for line in ZTBaseBoard._LINES[pos]:
-            line_val = self._board_list[pos] + \
-                       self._board_list[line[0]] + self._board_list[line[1]]
+            line_val = (self._board_list[pos] +
+                        self._board_list[line[0]] +
+                        self._board_list[line[1]])
 
             if line_val in (3 * ZTBaseBoard._VAL_PLAYER1, 3 * ZTBaseBoard._VAL_PLAYER2):
                 winning_set_list.extend(line)
