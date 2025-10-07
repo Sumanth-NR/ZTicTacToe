@@ -1,3 +1,6 @@
+# zttt Module Reference
+
+```{eval-rst}
 .. automodule:: zttt
    :members:
    :undoc-members:
@@ -12,3 +15,4 @@
    :members:
    :undoc-members:
    :show-inheritance:
+```
