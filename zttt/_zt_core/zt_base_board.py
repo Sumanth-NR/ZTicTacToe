@@ -31,13 +31,8 @@ class Player(IntEnum):
 class ZTBaseBoard:
     """This is the base class which is inherited by all the classes which are used in the module"""
 
-    # The following variables are not to be changed
-    _VAL_PLAYER1 = CellValue.PLAYER1  # Value for player 1 in the board_list
-    _VAL_PLAYER2 = CellValue.PLAYER2  # Value for player 2 in the board_list
-    _VAL_EMPTY = CellValue.EMPTY  # Value for empty position in the board_list
-
     # Indicates what the values contained in the _board_list represent
-    _INDICATOR: dict[int, str] = {_VAL_PLAYER1: "X", _VAL_PLAYER2: "O", _VAL_EMPTY: " "}
+    _INDICATOR: dict[int, str] = {CellValue.PLAYER1: "X", CellValue.PLAYER2: "O", CellValue.EMPTY: " "}
 
     # All the lines that pass through each position
     _LINES: dict[int, list[tuple[int, int]]] = {
@@ -68,14 +63,14 @@ class ZTBaseBoard:
         :return: None
         """
 
-        cls._INDICATOR = {cls._VAL_PLAYER1: str(_player1), cls._VAL_PLAYER2: str(_player2), cls._VAL_EMPTY: str(_space)}
+        cls._INDICATOR = {CellValue.PLAYER1: str(_player1), CellValue.PLAYER2: str(_player2), CellValue.EMPTY: str(_space)}
 
     def __init__(self) -> None:
         """Initializes the board and the state variables"""
 
         # Main list containing the board state from top left in row major order
         # Protected since inherited classes will be able to quickly access it
-        self._board_list: list[int] = [self._VAL_EMPTY for _ in range(BOARD_SIZE)]
+        self._board_list: list[int] = [CellValue.EMPTY for _ in range(BOARD_SIZE)]
 
         # List containing the empty positions
         # Protected since inherited classes will be able to quickly access it
@@ -292,7 +287,7 @@ class ZTBaseBoard:
         if pos not in self._empty_positions:
             raise ZTInvalidInput(f"Position {pos} is not available")
 
-        if self._board_list[pos] != self._VAL_EMPTY:
+        if self._board_list[pos] != CellValue.EMPTY:
             raise ZTInvalidInput(f"Position {pos} is already taken")
 
     def __is_fully_played(self, _line: tuple[int, int, int]) -> bool:
@@ -305,7 +300,7 @@ class ZTBaseBoard:
         """
 
         for pos in _line:
-            if self._board_list[pos] == self._VAL_EMPTY:
+            if self._board_list[pos] == CellValue.EMPTY:
                 return False
         return True
 
@@ -325,7 +320,7 @@ class ZTBaseBoard:
         for line in ZTBaseBoard._LINES[pos]:
             line_val = self._board_list[pos] + self._board_list[line[0]] + self._board_list[line[1]]
 
-            if line_val in (3 * ZTBaseBoard._VAL_PLAYER1, 3 * ZTBaseBoard._VAL_PLAYER2):
+            if line_val in (3 * CellValue.PLAYER1, 3 * CellValue.PLAYER2):
                 winning_set_list.extend(line)
 
         if len(winning_set_list) > 1:
@@ -368,7 +363,7 @@ class ZTBaseBoard:
         if self.__move % 2 != player % 2:
             raise ZTGameException("It is currently not the player's move")
 
-        self._board_list[pos] = ZTBaseBoard._VAL_PLAYER1 if player == 1 else ZTBaseBoard._VAL_PLAYER2
+        self._board_list[pos] = CellValue.PLAYER1 if player == 1 else CellValue.PLAYER2
         self._empty_positions.remove(pos)
         self._history.append(pos)
 

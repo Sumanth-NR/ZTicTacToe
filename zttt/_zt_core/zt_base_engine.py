@@ -1,7 +1,7 @@
 from random import choice
 
 from ..zt_errors import ZTBadFunctionCall
-from .zt_base_board import ZTBaseBoard
+from .zt_base_board import CellValue, ZTBaseBoard
 
 
 class ZTBaseEngine(ZTBaseBoard):
@@ -50,7 +50,7 @@ class ZTBaseEngine(ZTBaseBoard):
         :return: The value of the engine
         :rtype: int
         """
-        return self.__class__._VAL_PLAYER1 if self.__engine_first else self.__class__._VAL_PLAYER2
+        return CellValue.PLAYER1 if self.__engine_first else CellValue.PLAYER2
 
     @property
     def _player_value(self) -> int:
@@ -59,7 +59,7 @@ class ZTBaseEngine(ZTBaseBoard):
         :return: The value of the player
         :rtype: int
         """
-        return self.__class__._VAL_PLAYER1 if not self.__engine_first else self.__class__._VAL_PLAYER2
+        return CellValue.PLAYER1 if not self.__engine_first else CellValue.PLAYER2
 
     # Bot Functions
 
@@ -81,7 +81,7 @@ class ZTBaseEngine(ZTBaseBoard):
             raise ZTBadFunctionCall("The Board List length must be 9")
         else:
             for pos_val in _board_list:
-                if pos_val not in (self._VAL_PLAYER1, self._VAL_PLAYER2, self._VAL_EMPTY):
+                if pos_val not in (CellValue.PLAYER1, CellValue.PLAYER2, CellValue.EMPTY):
                     raise ZTBadFunctionCall(f"Board List not in the correct format, {pos_val} invalid")
 
         # The verification is complete
@@ -98,9 +98,9 @@ class ZTBaseEngine(ZTBaseBoard):
         for line in self.__active_lines:
             line_weight = self._calc_line_weight(line)
             if line_weight == 2 * self._engine_value:
-                if self._board_list[line[0]] == self._VAL_EMPTY:
+                if self._board_list[line[0]] == CellValue.EMPTY:
                     winnable_moves.append(line[0])
-                elif self._board_list[line[1]] == self._VAL_EMPTY:
+                elif self._board_list[line[1]] == CellValue.EMPTY:
                     winnable_moves.append(line[1])
                 else:
                     winnable_moves.append(line[2])
@@ -117,9 +117,9 @@ class ZTBaseEngine(ZTBaseBoard):
         for line in self.__active_lines:
             line_weight = self._calc_line_weight(line)
             if line_weight == 2 * self._player_value:
-                if self._board_list[line[0]] == self._VAL_EMPTY:
+                if self._board_list[line[0]] == CellValue.EMPTY:
                     return [line[0]]
-                elif self._board_list[line[1]] == self._VAL_EMPTY:
+                elif self._board_list[line[1]] == CellValue.EMPTY:
                     return [line[1]]
                 else:
                     return [line[2]]
@@ -182,8 +182,8 @@ class ZTBaseEngine(ZTBaseBoard):
             sorted_line = tuple(sorted([pos, pos1, pos2]))
             if (
                 sorted_line in self.__active_lines
-                and self._board_list[pos1] != self._VAL_EMPTY
-                and self._board_list[pos2] != self._VAL_EMPTY
+                and self._board_list[pos1] != CellValue.EMPTY
+                and self._board_list[pos2] != CellValue.EMPTY
             ):
                 self.__active_lines.remove(sorted_line)
 

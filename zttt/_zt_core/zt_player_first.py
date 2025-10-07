@@ -1,5 +1,6 @@
 from random import choice
 
+from .zt_base_board import CellValue
 from .zt_base_engine import ZTBaseEngine
 
 
@@ -43,9 +44,9 @@ class ZTPlayerFirst(ZTBaseEngine):
             line_weight = self._calc_line_weight(line)
             if line_weight == 2 * self._player_value:
                 # One of the corner is empty implies a continuous draw game to the last move
-                if self._board_list[line[0]] == self._VAL_EMPTY:
+                if self._board_list[line[0]] == CellValue.EMPTY:
                     return line[0]
-                if self._board_list[line[2]] == self._VAL_EMPTY:
+                if self._board_list[line[2]] == CellValue.EMPTY:
                     return line[2]
 
                 # The edge is empty introduces a liberty move in move 3
