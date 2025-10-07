@@ -1,14 +1,29 @@
-from typing import List, Tuple, Dict, Callable, Iterable, Any, Union
+from enum import IntEnum
+from typing import List, Tuple, Dict, Callable, Optional, Any
 from ..zt_errors import ZTGameException, ZTInvalidInput
+
+
+class CellValue(IntEnum):
+    """Enum for cell values on the board"""
+    EMPTY = 0
+    PLAYER2 = 1
+    PLAYER1 = 4
+
+
+class Player(IntEnum):
+    """Enum for player numbers"""
+    DRAW = 0
+    PLAYER1 = 1
+    PLAYER2 = 2
 
 
 class ZTBaseBoard:
     """This is the base class which is inherited by all the classes which are used in the module"""
 
     # The following variables are not to be changed
-    _VAL_PLAYER1 = 4  # Value for player 1 in the board_list
-    _VAL_PLAYER2 = 1  # Value for player 2 in the board_list
-    _VAL_EMPTY = 0  # Value for empty position in the board_list
+    _VAL_PLAYER1 = CellValue.PLAYER1  # Value for player 1 in the board_list
+    _VAL_PLAYER2 = CellValue.PLAYER2  # Value for player 2 in the board_list
+    _VAL_EMPTY = CellValue.EMPTY  # Value for empty position in the board_list
 
     # Indicates what the values contained in the _board_list represent
     # The indicator with value 5 goes first
@@ -73,7 +88,7 @@ class ZTBaseBoard:
         self.__status: bool = True
 
         # Stores the information about the __winner of the game
-        self.__winner: (None, int) = None  # Initially set to None since there is no winner
+        self.__winner: Optional[int] = None  # Initially set to None since there is no winner
 
         # This stores the current move that is to be performed
         # move = 1 indicates that move 1 is to be played now
@@ -128,15 +143,12 @@ class ZTBaseBoard:
         return 1 if self.__move % 2 == 1 else 2
 
     @property
-    def winner(self) -> (None, int):
+    def winner(self) -> Optional[int]:
         """The winner of the game
 
         :return: Winner if the game is over, 0 is draw, None if no winner yet
-        :rtype: (None, int)
+        :rtype: Optional[int]
         """
-        # !TODO Issue a Warning if there is no winner
-        if self.status:
-            pass  # Issue a warning here
         return self.__winner
 
     @property
@@ -164,7 +176,7 @@ class ZTBaseBoard:
         :return: List of the empty corners
         :rtype: List[int]
         """
-        return [i for i in self._empty_positions if i is not self._CENTER and i % 2 == 0]
+        return [i for i in self._empty_positions if i != self._CENTER and i % 2 == 0]
 
     @property
     def empty_edges(self) -> List[int]:
@@ -269,15 +281,17 @@ class ZTBaseBoard:
             pos = int(pos)
         except ValueError:
             raise ZTInvalidInput("Position entered must be an integer")
-        except Exception as e:
-            print(f"Unknown Error while verifying the position {pos}. Please raise an issue.")
-            raise ZTInvalidInput(e)
+        except (TypeError, OverflowError) as e:
+            raise ZTInvalidInput(f"Invalid position type: {e}")
+
+        if pos not in range(9):
+            raise ZTInvalidInput(f"Position must be between 0 and 8, got {pos}")
 
         if pos not in self._empty_positions:
-            raise ZTInvalidInput("Invalid Position Entered")
+            raise ZTInvalidInput(f"Position {pos} is not available")
 
-        if not self._board_list[pos] == 0:
-            raise ZTInvalidInput("Position Already Taken")
+        if self._board_list[pos] != self._VAL_EMPTY:
+            raise ZTInvalidInput(f"Position {pos} is already taken")
 
     def __is_fully_played(self, _line: Tuple[int, int, int]) -> bool:
         """Checks if the given line is fully played
@@ -289,7 +303,7 @@ class ZTBaseBoard:
         """
 
         for pos in _line:
-            if self._board_list[pos] == 0:
+            if self._board_list[pos] == self._VAL_EMPTY:
                 return False
         return True
 
