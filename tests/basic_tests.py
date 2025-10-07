@@ -48,7 +48,7 @@ def test_game_finish():
     b.play(2)
     b.play(6)
     assert b.status is False
-    assert b.winner is 1
+    assert b.winner == 1
     assert out[0] == "Player 1 WON"
 
 
@@ -67,5 +67,5 @@ def test_draw():
     b.play(7)
     b.play(8)
     assert b.status is False
-    assert b.winner is 0
+    assert b.winner == 0
     assert out[0] == "Draw"
