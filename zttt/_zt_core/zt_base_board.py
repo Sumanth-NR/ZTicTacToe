@@ -2,6 +2,13 @@ from enum import IntEnum
 from typing import List, Tuple, Dict, Callable, Optional, Any
 from ..zt_errors import ZTGameException, ZTInvalidInput
 
+# Board constants
+BOARD_SIZE = 9
+GRID_DIMENSION = 3
+CENTER_POSITION = 4
+WINNING_LINE_LENGTH = 3
+MAX_MOVES = 9
+
 
 class CellValue(IntEnum):
     """Enum for cell values on the board"""
@@ -26,30 +33,27 @@ class ZTBaseBoard:
     _VAL_EMPTY = CellValue.EMPTY  # Value for empty position in the board_list
 
     # Indicates what the values contained in the _board_list represent
-    # The indicator with value 5 goes first
     _INDICATOR: Dict[int, str] = {
         _VAL_PLAYER1: 'X',
         _VAL_PLAYER2: 'O',
         _VAL_EMPTY: ' '
     }
 
-    # All the lines the current position
+    # All the lines that pass through each position
     _LINES: Dict[int, List[Tuple[int, int]]] = {
         4: [(0, 8), (2, 6), (1, 7), (3, 5)],
-
         0: [(1, 2), (4, 8), (3, 6)],
         2: [(1, 0), (4, 6), (5, 8)],
         6: [(3, 0), (4, 2), (7, 8)],
         8: [(5, 2), (4, 0), (6, 7)],
-
         1: [(0, 2), (4, 7)],
         3: [(0, 6), (4, 5)],
         5: [(2, 8), (3, 4)],
         7: [(6, 8), (4, 1)]
     }
 
-    # The center is present in Position 4
-    _CENTER = 4
+    # The center position
+    _CENTER = CENTER_POSITION
 
     @classmethod
     def set_indicators(cls, _player1: str = 'X', _player2: str = 'O', _space: str = ' ') -> None:
@@ -73,13 +77,13 @@ class ZTBaseBoard:
     def __init__(self) -> None:
         """Initializes the board and the state variables"""
 
-        # Main list containing the _empty_positions from top left in row major order
+        # Main list containing the board state from top left in row major order
         # Protected since inherited classes will be able to quickly access it
-        self._board_list: List[int] = [0 for _ in range(9)]
+        self._board_list: List[int] = [self._VAL_EMPTY for _ in range(BOARD_SIZE)]
 
-        # List containing the _empty_positions empty edges and empty corners
+        # List containing the empty positions
         # Protected since inherited classes will be able to quickly access it
-        self._empty_positions: List[int] = [i for i in range(9)]
+        self._empty_positions: List[int] = list(range(BOARD_SIZE))
 
         # History
         self._history: List[int] = []
@@ -203,15 +207,17 @@ class ZTBaseBoard:
         :return: board string
         :rtype: str
         """
-
-        pr_str = ' _____ _____ _____\n'
-        for i in range(3):
-            pr_str += '|     |     |     |\n|'
-            for j in range(3):
-                pos_val = self._board_list[i * 3 + j]
-                pr_str += f'  {self.__class__._INDICATOR[pos_val]}  |'
-            pr_str += '\n|_____|_____|_____|\n'
-        return pr_str
+        lines = [' _____ _____ _____']
+        for i in range(GRID_DIMENSION):
+            lines.append('|     |     |     |')
+            row_cells = []
+            for j in range(GRID_DIMENSION):
+                pos_val = self._board_list[i * GRID_DIMENSION + j]
+                indicator = self.__class__._INDICATOR[pos_val]
+                row_cells.append(f'  {indicator}  ')
+            lines.append('|' + '|'.join(row_cells) + '|')
+            lines.append('|_____|_____|_____|')
+        return '\n'.join(lines)
 
     # Triggers Setup
 
@@ -284,8 +290,8 @@ class ZTBaseBoard:
         except (TypeError, OverflowError) as e:
             raise ZTInvalidInput(f"Invalid position type: {e}")
 
-        if pos not in range(9):
-            raise ZTInvalidInput(f"Position must be between 0 and 8, got {pos}")
+        if pos not in range(BOARD_SIZE):
+            raise ZTInvalidInput(f"Position must be between 0 and {BOARD_SIZE - 1}, got {pos}")
 
         if pos not in self._empty_positions:
             raise ZTInvalidInput(f"Position {pos} is not available")

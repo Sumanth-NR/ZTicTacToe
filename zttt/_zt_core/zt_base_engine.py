@@ -1,8 +1,8 @@
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from random import choice
 
 from .zt_base_board import ZTBaseBoard
-from ..zt_errors import *
+from ..zt_errors import ZTBadFunctionCall, ZTGameException, ZTInvalidInput
 
 
 class ZTBaseEngine(ZTBaseBoard):
@@ -46,20 +46,20 @@ class ZTBaseEngine(ZTBaseBoard):
         :return: The value of the engine
         :rtype: int
         """
-        return self.__class__._VAL_PLAYER1 if self.__engine_first is True else self.__class__._VAL_PLAYER2
+        return self.__class__._VAL_PLAYER1 if self.__engine_first else self.__class__._VAL_PLAYER2
 
     @property
     def _player_value(self) -> int:
         """Returns the value of the player and is mainly for development purpose
 
-        :return: The value of the engine
+        :return: The value of the player
         :rtype: int
         """
-        return self.__class__._VAL_PLAYER1 if self.__engine_first is False else self.__class__._VAL_PLAYER2
+        return self.__class__._VAL_PLAYER1 if not self.__engine_first else self.__class__._VAL_PLAYER2
 
     # Bot Functions
 
-    def _calc_line_weight(self, _line: Tuple[int, int, int], _board_list: List[int] = None) -> int:
+    def _calc_line_weight(self, _line: Tuple[int, int, int], _board_list: Optional[List[int]] = None) -> int:
         """Calculates the weight of a line
 
         :param _line: The line to calculate the weight of
@@ -81,7 +81,7 @@ class ZTBaseEngine(ZTBaseBoard):
                     raise ZTBadFunctionCall(f"Board List not in the correct format, {pos_val} invalid")
 
         # The verification is complete
-        return sum([_board_list[pos] for pos in _line])
+        return sum(_board_list[pos] for pos in _line)
 
     def _get_winnable_moves(self) -> List[int]:
         """Returns a list of winnable moves and empty list if none
@@ -175,9 +175,11 @@ class ZTBaseEngine(ZTBaseBoard):
         if self.move < 5:
             return
         for (pos1, pos2) in self._LINES[pos]:
-            if sorted([pos, pos1, pos2]) in self.__active_lines and self._board_list[pos1] != self._VAL_EMPTY \
-                    and self._board_list[pos2] != self._VAL_EMPTY:
-                self.__active_lines.remove(sorted([pos, pos1, pos2]))
+            sorted_line = tuple(sorted([pos, pos1, pos2]))
+            if (sorted_line in self.__active_lines and
+                    self._board_list[pos1] != self._VAL_EMPTY and
+                    self._board_list[pos2] != self._VAL_EMPTY):
+                self.__active_lines.remove(sorted_line)
 
     # Functions to play
 
