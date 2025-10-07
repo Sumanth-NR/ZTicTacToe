@@ -19,13 +19,13 @@ def test_invalid_position_error():
     # Test out of bounds
     try:
         game.play(-1)
-        assert False, "Should have raised ZTInvalidInput"
+        raise AssertionError("Should have raised ZTInvalidInput")
     except ZTInvalidInput as e:
         assert "Position must be between 0 and 8" in str(e)
 
     try:
         game.play(9)
-        assert False, "Should have raised ZTInvalidInput"
+        raise AssertionError("Should have raised ZTInvalidInput")
     except ZTInvalidInput as e:
         assert "Position must be between 0 and 8" in str(e)
 
@@ -40,7 +40,7 @@ def test_position_already_taken_error():
 
     try:
         game.play(0)
-        assert False, "Should have raised ZTInvalidInput"
+        raise AssertionError("Should have raised ZTInvalidInput")
     except ZTInvalidInput as e:
         assert "not available" in str(e).lower() or "already taken" in str(e).lower()
 
@@ -63,7 +63,7 @@ def test_game_over_error():
 
     try:
         game.play(4)
-        assert False, "Should have raised ZTGameException"
+        raise AssertionError("Should have raised ZTGameException")
     except ZTGameException as e:
         assert "not in progress" in str(e).lower()
 
@@ -72,13 +72,13 @@ def test_enums_exported():
     """Test that enums are properly exported"""
     from zttt import CellValue, Player
 
-    assert hasattr(CellValue, 'EMPTY')
-    assert hasattr(CellValue, 'PLAYER1')
-    assert hasattr(CellValue, 'PLAYER2')
+    assert hasattr(CellValue, "EMPTY")
+    assert hasattr(CellValue, "PLAYER1")
+    assert hasattr(CellValue, "PLAYER2")
 
-    assert hasattr(Player, 'DRAW')
-    assert hasattr(Player, 'PLAYER1')
-    assert hasattr(Player, 'PLAYER2')
+    assert hasattr(Player, "DRAW")
+    assert hasattr(Player, "PLAYER1")
+    assert hasattr(Player, "PLAYER2")
 
 
 def test_pvc_delegation():
@@ -86,12 +86,12 @@ def test_pvc_delegation():
     from zttt import PvC
 
     game = PvC(False)
-    assert hasattr(game, 'board_list')
-    assert hasattr(game, 'status')
-    assert hasattr(game, 'turn')
-    assert hasattr(game, 'winner')
-    assert hasattr(game, 'history')
-    assert hasattr(game, 'empty_positions')
+    assert hasattr(game, "board_list")
+    assert hasattr(game, "status")
+    assert hasattr(game, "turn")
+    assert hasattr(game, "winner")
+    assert hasattr(game, "history")
+    assert hasattr(game, "empty_positions")
 
 
 def test_immutable_board_list():
@@ -203,12 +203,12 @@ def test_board_string_format():
     game = PvP()
     board = game.board
     assert isinstance(board, str)
-    assert 'X' not in board  # Empty board
-    assert 'O' not in board
+    assert "X" not in board  # Empty board
+    assert "O" not in board
 
     game.play(0)
     board = game.board
-    assert 'X' in board
+    assert "X" in board
 
 
 def test_on_move_callback():

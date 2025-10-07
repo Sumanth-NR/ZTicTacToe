@@ -1,8 +1,7 @@
-from typing import Tuple, List, Optional
 from random import choice
 
-from .zt_base_board import ZTBaseBoard
 from ..zt_errors import ZTBadFunctionCall
+from .zt_base_board import ZTBaseBoard
 
 
 class ZTBaseEngine(ZTBaseBoard):
@@ -22,10 +21,15 @@ class ZTBaseEngine(ZTBaseBoard):
         self.__engine_first: bool = _engine_first
 
         # List of all the lines that contain at least one empty position
-        self.__active_lines: List[Tuple[int, int, int]] = [
-            (0, 1, 2), (3, 4, 5), (6, 7, 8),
-            (0, 3, 6), (1, 4, 7), (2, 5, 8),
-            (0, 4, 8), (2, 4, 6)
+        self.__active_lines: list[tuple[int, int, int]] = [
+            (0, 1, 2),
+            (3, 4, 5),
+            (6, 7, 8),
+            (0, 3, 6),
+            (1, 4, 7),
+            (2, 5, 8),
+            (0, 4, 8),
+            (2, 4, 6),
         ]
 
     # Properties
@@ -59,7 +63,7 @@ class ZTBaseEngine(ZTBaseBoard):
 
     # Bot Functions
 
-    def _calc_line_weight(self, _line: Tuple[int, int, int], _board_list: Optional[List[int]] = None) -> int:
+    def _calc_line_weight(self, _line: tuple[int, int, int], _board_list: list[int] | None = None) -> int:
         """Calculates the weight of a line
 
         :param _line: The line to calculate the weight of
@@ -83,7 +87,7 @@ class ZTBaseEngine(ZTBaseBoard):
         # The verification is complete
         return sum(_board_list[pos] for pos in _line)
 
-    def _get_winnable_moves(self) -> List[int]:
+    def _get_winnable_moves(self) -> list[int]:
         """Returns a list of winnable moves and empty list if none
 
         :return: A list of winnable moves
@@ -103,7 +107,7 @@ class ZTBaseEngine(ZTBaseBoard):
 
         return winnable_moves
 
-    def _get_danger_move(self) -> List[int]:
+    def _get_danger_move(self) -> list[int]:
         """Returns the move to avoid losing, else nothing
 
         :return: The singleton list with the only move to avoid losing, empty list otherwise
@@ -121,7 +125,7 @@ class ZTBaseEngine(ZTBaseBoard):
                     return [line[2]]
         return []
 
-    def __get_double_danger_moves(self) -> List[int]:
+    def __get_double_danger_moves(self) -> list[int]:
         """Returns a list of moves that cause double attacks, empty list if none
 
         :return: List of moves that cause double danger
@@ -143,7 +147,7 @@ class ZTBaseEngine(ZTBaseBoard):
                 double_danger_moves.append(corner)
         return double_danger_moves
 
-    def _get_bot_move(self) -> List[int]:
+    def _get_bot_move(self) -> list[int]:
         """Returns the best move to play using the above functions
 
         :return: The singleton list with the only move to play, empty list otherwise
@@ -174,11 +178,13 @@ class ZTBaseEngine(ZTBaseBoard):
 
         if self.move < 5:
             return
-        for (pos1, pos2) in self._LINES[pos]:
+        for pos1, pos2 in self._LINES[pos]:
             sorted_line = tuple(sorted([pos, pos1, pos2]))
-            if (sorted_line in self.__active_lines
-                    and self._board_list[pos1] != self._VAL_EMPTY
-                    and self._board_list[pos2] != self._VAL_EMPTY):
+            if (
+                sorted_line in self.__active_lines
+                and self._board_list[pos1] != self._VAL_EMPTY
+                and self._board_list[pos2] != self._VAL_EMPTY
+            ):
                 self.__active_lines.remove(sorted_line)
 
     # Functions to play

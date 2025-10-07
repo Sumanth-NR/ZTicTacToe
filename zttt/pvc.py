@@ -1,6 +1,6 @@
-from typing import Union, Any
-from ._zt_core import ZTEngineFirst
-from ._zt_core import ZTPlayerFirst
+from typing import Any
+
+from ._zt_core import ZTEngineFirst, ZTPlayerFirst
 
 
 class PvC:
@@ -22,7 +22,7 @@ class PvC:
         :type _engine_first: bool
         :return: None
         """
-        self._engine: Union[ZTEngineFirst, ZTPlayerFirst]
+        self._engine: ZTEngineFirst | ZTPlayerFirst
         if _engine_first:
             self._engine = ZTEngineFirst()
         else:
